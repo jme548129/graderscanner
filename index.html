@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Grader</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+:root{--bg:#F4F6FA;--card:#fff;--ink:#14213D;--mut:#5B6577;--line:#D8DEE9;--pri:#14213D;--onpri:#fff;--ok:#1B7F4B;--bad:#C62F3A;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1522;--card:#18202F;--ink:#E8ECF4;--mut:#9AA5B8;--line:#2A3547;--pri:#E8ECF4;--onpri:#0F1522;--ok:#4CC38A;--bad:#FF7A83}}
+:root[data-theme="dark"]{--bg:#0F1522;--card:#18202F;--ink:#E8ECF4;--mut:#9AA5B8;--line:#2A3547;--pri:#E8ECF4;--onpri:#0F1522;--ok:#4CC38A;--bad:#FF7A83}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Atkinson Hyperlegible",system-ui,sans-serif;padding-bottom:84px}
+main{max-width:640px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:0 0 12px}
+h2{font-size:17px;margin:20px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+label{display:block;color:var(--mut);font-size:14px;margin-bottom:4px}
+input,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px}
+textarea{min-height:90px;font-family:ui-monospace,monospace;font-size:13px}
+button{font:inherit;cursor:pointer}
+.btn{background:var(--pri);color:var(--onpri);border:0;border-radius:10px;padding:12px 16px;font-weight:700}
+.btn.alt{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>*{flex:1}
+.mut{color:var(--mut);font-size:14px}
+.warn{color:var(--bad)}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:6px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:5px 0;display:flex;flex-direction:column;align-items:center}
+.chip small{color:var(--mut);font-size:11px;line-height:1.2}
+.chip b{font-size:20px;line-height:1.2}
+.chip.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 15%,var(--card))}
+.chip.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,var(--card))}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+nav button{flex:1;background:none;border:0;color:var(--mut);padding:10px 0;font-weight:700;border-radius:8px}
+nav button.on{color:var(--onpri);background:var(--pri)}
+section{display:none}section.on{display:block}
+canvas{width:100%;height:auto;border-radius:10px;border:1px solid var(--line);margin-top:10px}
+.camw{position:relative;margin-top:10px}.camw video{width:100%;border-radius:10px;background:#000;display:block}.guide{position:absolute;inset:5%;border:2px dashed rgba(255,255,255,.85);border-radius:6px;pointer-events:none}select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px}.sheetbox{background:#fff;overflow:auto;border:1px solid var(--line);border-radius:8px}
+.sheetbox svg{display:block;width:100%;height:auto;min-width:320px}
+.res{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.res:last-child{border:0}
+.res .nm{flex:1}
+.res .sc{font-weight:700}
+.x{background:none;border:0;color:var(--bad);font-size:22px;padding:0 6px}
+:root{--bg:#EDF4F3;--card:#fff;--ink:#12302F;--mut:#58706E;--line:#D3E2E0;--pri:#0E6B6B;--onpri:#fff;--ok:#1A8050;--bad:#C8323D}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B1819;--card:#132627;--ink:#E5F2F0;--mut:#8FABA8;--line:#223F40;--pri:#43BDB3;--onpri:#04211F;--ok:#4CC38A;--bad:#FF7A83}}
+:root[data-theme="dark"]{--bg:#0B1819;--card:#132627;--ink:#E5F2F0;--mut:#8FABA8;--line:#223F40;--pri:#43BDB3;--onpri:#04211F;--ok:#4CC38A;--bad:#FF7A83}
+.top{background:var(--pri);color:var(--onpri);padding:14px 16px 20px;border-radius:0 0 24px 24px;margin-bottom:6px}
+.top>div{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border-radius:13px;background:var(--onpri);color:var(--pri);display:grid;place-items:center;flex:none}
+.logo svg{width:26px;height:26px}
+.top b{font-size:20px;display:block;line-height:1.15}.top span{font-size:13px;opacity:.9}
+h1{font-size:24px;letter-spacing:-.01em}
+.card{border-radius:16px;padding:16px;box-shadow:0 1px 2px rgba(15,60,60,.06),0 8px 20px rgba(15,60,60,.05)}
+input,textarea,select{border-radius:12px;padding:12px}
+input:focus,textarea:focus,select:focus,button:focus-visible{outline:3px solid color-mix(in srgb,var(--pri) 45%,transparent);outline-offset:1px}
+.btn{border-radius:14px;padding:14px 16px}
+.btn.alt{border:1.5px solid var(--pri);color:var(--pri)}
+.btn.big{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 8px;font-size:15px}
+.btn svg{width:30px;height:30px}
+.linkbtn{background:none;border:0;color:var(--pri);font-weight:700;text-decoration:underline;padding:12px 0 2px;width:100%}
+.chip{border-radius:12px}
+canvas{border-radius:14px}
+nav{padding-top:6px;box-shadow:0 -4px 16px rgba(15,60,60,.08)}
+nav button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;padding:8px 0}
+nav svg{width:22px;height:22px}
+nav button.on{background:color-mix(in srgb,var(--pri) 14%,transparent);color:var(--pri)}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}label.btn{cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent}
+@media print{.top{display:none!important}}
+@media print{@page{margin:0}body{background:#fff;padding:0}nav,main>section:not(#t-sheet),.noprint{display:none!important}main{padding:0;max-width:none}#t-sheet{display:block}.sheetbox{border:0}.sheetbox svg{width:210mm;height:297mm}}
+</style>
+</head>
+<body>
+<header class="top"><div><div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 9l2 2 4-4M9 16h6"/></svg></div><div><b>Grader</b><span>Fast answer sheet checker</span></div></div></header>
+<main>
+<section id="t-key" class="on">
+ <h1>Answer key</h1>
+ <div class="card">
+  <label for="exT">Assessment type</label>
+  <select id="exT"><option>Exam</option><option>Summative</option><option>Quiz</option></select>
+  <label for="exN" style="margin-top:10px">Title (e.g., Mathematics – First Quarter)</label>
+  <input id="exN">
+  <label for="idLen" style="margin-top:10px">Show School ID / LRN write-in field? (1 = Yes, 0 = No)</label>
+  <input id="idLen" type="number" min="0" max="1" step="1" inputmode="numeric" value="1">
+  <label for="n" style="margin-top:10px">Number of items (1–100)</label>
+  <input id="n" type="number" min="1" max="100" inputmode="numeric">
+  <h2>Tap each item to change its answer</h2>
+  <div id="keyChips" class="chips"></div>
+  <p id="keyWarn" class="mut"></p>
+ </div>
+ <div class="card">
+  <label for="paste">Or enter the full answer key (e.g., ABCDDBAC…)</label>
+  <textarea id="paste" placeholder="ABCDEABCDE"></textarea>
+ </div>
+</section>
+
+<section id="t-sheet">
+ <h1>Answer sheet</h1>
+ <p class="mut noprint">Print on A4 paper at 100% scale (do not use “Fit to page”). Keep all four black corner markers visible. Use a black pen or dark pencil to fill in the answers.</p>
+ <div class="row noprint" style="margin-bottom:12px"><button class="btn" id="print">I-print</button></div>
+ <div class="sheetbox" id="sheet"></div>
+</section>
+
+<section id="t-scan">
+ <h1>I-scan</h1>
+ <div class="card">
+  <label for="name">Student name</label>
+  <input id="name" placeholder="e.g., Juan Dela Cruz">
+  <label for="sid" style="margin-top:10px">School ID / LRN</label>
+  <input id="sid" inputmode="numeric" placeholder="Enter School ID / LRN manually">
+  <div class="row" style="margin-top:12px">
+   <button class="btn big" id="cam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Mag-picture</button>
+   <label class="btn alt big" for="f2" id="pick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V5M7 9l5-5 5 5M5 19h14"/></svg>Mag-upload ng photo</label>
+  </div>
+  
+  <button class="linkbtn" id="manual" style="padding-top:2px">Manual na pasok ng sagot</button>
+  <input id="f1" class="vh" type="file" accept="image/*" capture="environment">
+  <input id="f2" class="vh" type="file" accept="image/*">
+  <p id="msg" class="mut">Tip: kita dapat ang apat na itim na kuwadrado sa kanto ng papel, diretso ang kuha at maliwanag ang ilaw.</p>
+  <div id="camBox" class="camw" hidden><video id="vid" playsinline muted autoplay></video><div class="guide"></div></div>
+  <div id="camBtns" class="row" style="margin-top:8px" hidden><button class="btn" id="snap">Kunan</button><button class="btn alt" id="camX">Isara</button></div>
+  <canvas id="cv" hidden></canvas>
+ </div>
+ <div id="editor" class="card" hidden>
+  <h2 style="margin-top:0">Iskor: <span id="score"></span></h2>
+  <p class="mut">Mali ang nabasa? I-tap ang item para ayusin. Ang * ay nangangahulugang higit sa isang shade.</p>
+  <div id="curChips" class="chips"></div>
+  <button class="btn" id="saveRes" style="width:100%;margin-top:12px">I-save ang resulta</button>
+ </div>
+</section>
+
+<section id="t-res">
+ <h1>Mga resulta</h1>
+ <div class="card"><h2 id="exl" style="margin-top:0"></h2><div id="list"></div><p id="avg" class="mut"></p></div>
+ <div class="row">
+  <button class="btn" id="csvBtn">Kopyahin ang CSV</button>
+  <button class="btn alt" id="clr">Burahin lahat</button>
+ </div>
+ <textarea id="csv" hidden readonly style="margin-top:12px"></textarea>
+</section>
+
+<section id="t-analysis">
+ <h1>Item Analysis</h1>
+ <p class="mut">Pagsusuri sa bawat tanong batay sa mga resultang may kaparehong uri at pamagat ng exam. Mas kapaki-pakinabang kapag maraming estudyante ang nasuri.</p>
+ <div class="card">
+  <h2 id="anTitle" style="margin-top:0">Wala pang data</h2>
+  <div id="anSummary" class="mut">Mag-save muna ng mga resulta.</div>
+ </div>
+ <div class="card">
+  <h2 style="margin-top:0">Resulta bawat item</h2>
+  <div style="overflow-x:auto"><table id="anTable" style="border-collapse:collapse;width:100%;font-size:13px"><thead><tr><th style="padding:8px;text-align:left">Item</th><th style="padding:8px;text-align:left">Key</th><th style="padding:8px;text-align:left">Tama</th><th style="padding:8px;text-align:left">Mali/blank</th><th style="padding:8px;text-align:left">Difficulty (p)</th><th style="padding:8px;text-align:left">Discrimination (D)</th><th style="padding:8px;text-align:left">A/B/C/D/E</th><th style="padding:8px;text-align:left">Pagsusuri</th></tr></thead><tbody id="anRows"><tr><td colspan="8" style="padding:10px">Wala pang resulta.</td></tr></tbody></table></div>
+  <p class="mut">Difficulty = bilang ng tama ÷ bilang ng estudyante. Discrimination = porsiyento ng tama sa upper group minus porsiyento ng tama sa lower group; 27% groups kapag may sapat na data. Ang D ay gabay lamang, hindi awtomatikong hatol sa kalidad ng tanong.</p>
+  <button class="btn" id="anCsv" style="margin-top:10px">I-export ang Item Analysis (CSV)</button>
+  <textarea id="anCsvText" hidden readonly style="margin-top:10px"></textarea>
+ </div>
+</section>
+</main>
+
+<nav id="nav">
+ <button data-t="key" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>Key</button>
+ <button data-t="sheet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>Sheet</button>
+ <button data-t="scan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Scan</button>
+ <button data-t="res"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>Resulta</button>
+ <button data-t="analysis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19H21M8 16v-5M13 16V7M18 16V3"/></svg>Analysis</button>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="cloud.js"></script>
+<script>
+const L=['A','B','C','D','E'],CY=['',...L];
+const S={n:20,key:[],res:[],cur:null,ex:{type:'Summative',title:''},idLen:1};
+const $=id=>document.getElementById(id);
+try{const d=JSON.parse(localStorage.getItem('grader')||'null');if(d){S.n=d.n;S.key=d.key;S.res=d.res;S.ex=d.ex||S.ex;S.idLen=(d.idLen??1)?1:0}}catch(e){}
+function save(){try{localStorage.setItem('grader',JSON.stringify({n:S.n,key:S.key,res:S.res,ex:S.ex,idLen:S.idLen}))}catch(e){}}
+function fit(){while(S.key.length<S.n)S.key.push('');S.key.length=S.n}
+fit();
+const cyc=v=>CY[(CY.indexOf(v)+1)%6];
+const total=()=>S.key.filter(Boolean).length;
+const grade=a=>a.reduce((s,v,i)=>s+(v&&v===S.key[i]?1:0),0);
+
+/* Tabs */
+$('nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;
+ document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));
+ document.querySelectorAll('section').forEach(x=>x.classList.toggle('on',x.id==='t-'+b.dataset.t));
+ if(b.dataset.t==='sheet')drawSheet();if(b.dataset.t==='res')drawRes();if(b.dataset.t==='analysis')drawAnalysis();if(b.dataset.t==='scan'&&S.cur)drawEditor();stopCam();window.scrollTo(0,0)};
+
+/* Chips */
+function chips(el,arr,cls){el.innerHTML=arr.map((v,i)=>`<button class="chip ${cls?cls(v,i):''}" data-i="${i}"><small>${i+1}</small><b>${v||'–'}</b></button>`).join('')}
+
+/* Key */
+function drawKey(){$('n').value=S.n;$('exT').value=S.ex.type;$('exN').value=S.ex.title;$('idLen').value=S.idLen;chips($('keyChips'),S.key,v=>v?'ok':'');
+ const m=S.key.length-total();$('keyWarn').textContent=m?`May ${m} item na wala pang sagot. Hindi ito isasama sa iskor.`:'Kumpleto na ang key.'}
+$('n').oninput=e=>{const v=Math.max(1,Math.min(100,parseInt(e.target.value)||0));if(!v)return;S.n=v;fit();save();drawKey()};
+$('exT').onchange=e=>{S.ex.type=e.target.value;save()};
+$('exN').oninput=e=>{S.ex.title=e.target.value;save()};
+$('idLen').oninput=e=>{const v=parseInt(e.target.value);if(isNaN(v))return;S.idLen=v?1:0;e.target.value=S.idLen;save();drawSheet()};
+$('keyChips').onclick=e=>{const c=e.target.closest('.chip');if(!c)return;const i=+c.dataset.i;S.key[i]=cyc(S.key[i]);save();drawKey()};
+$('paste').oninput=e=>{const s=(e.target.value.toUpperCase().match(/[A-E]/g)||[]).slice(0,100);if(!s.length)return;S.n=s.length;S.key=s;save();drawKey()};
+
+/* Sheet layout (shared by printing and scanning) */
+const MK=[[15,15],[195,15],[15,282],[195,282]];
+
+const esc=t=>String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function pos(n){const o=[];for(let i=0;i<n;i++){const c=Math.floor(i/25),r=i%25,x0=22+c*43;o.push({x0,y:110+r*6.8,xs:[0,1,2,3,4].map(k=>x0+12+k*6.5)})}return o}
+function drawSheet(){
+ let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 297" font-family="Arial,sans-serif"><rect width="210" height="297" fill="#fff"/>`;
+ MK.forEach(([x,y])=>s+=`<rect x="${x-5}" y="${y-5}" width="10" height="10" fill="#000"/>`);
+ s+=`<text x="25" y="24" font-size="5" font-weight="700" fill="#000">${esc(S.ex.type)}${S.ex.title?' – '+esc(S.ex.title):''}<tspan font-size="3.2" font-weight="400"> (${S.n} items)</tspan></text>`;
+ s+=`<text x="25" y="34" font-size="3.6" fill="#000">Student Name: __________________________   Date: ____________</text>`;
+ const P=pos(S.n),cols=Math.ceil(S.n/25);
+ if(S.idLen){s+=`<text x="25" y="44" font-size="3.4" font-weight="700" fill="#000">School ID / LRN:</text><rect x="53" y="38.5" width="75" height="8" rx=".6" fill="none" stroke="#000" stroke-width=".35"/>`}
+ s+=`<text x="25" y="55" font-size="3.4" font-weight="700" fill="#000">Grade Level and Section:</text><rect x="67" y="49.5" width="99" height="8" rx=".6" fill="none" stroke="#000" stroke-width=".35"/>`
+ for(let c=0;c<cols;c++)L.forEach((l,k)=>s+=`<text x="${22+c*43+12+k*6.5}" y="105" font-size="3.2" text-anchor="middle" fill="#000">${l}</text>`);
+ P.forEach((p,i)=>{s+=`<text x="${p.x0+7}" y="${p.y+1.1}" font-size="3.2" text-anchor="end" fill="#000">${i+1}</text>`;
+  p.xs.forEach(x=>s+=`<circle cx="${x}" cy="${p.y}" r="2.6" fill="none" stroke="#000" stroke-width=".35"/>`)});
+ $('sheet').innerHTML=s+'</svg>'}
+$('print').onclick=()=>{try{window.print()}catch(e){}};
+
+/* Scanner */
+const msg=t=>$('msg').textContent=t;
+function homog(src,dst){const A=[];
+ for(let i=0;i<4;i++){const[x,y]=src[i],[u,v]=dst[i];
+  A.push([x,y,1,0,0,0,-u*x,-u*y,u]);A.push([0,0,0,x,y,1,-v*x,-v*y,v])}
+ for(let i=0;i<8;i++){let m=i;for(let r=i+1;r<8;r++)if(Math.abs(A[r][i])>Math.abs(A[m][i]))m=r;[A[i],A[m]]=[A[m],A[i]];
+  for(let r=0;r<8;r++)if(r!==i){const f=A[r][i]/A[i][i];for(let c=i;c<9;c++)A[r][c]-=f*A[i][c]}}
+ return A.map((r,i)=>r[8]/r[i])}
+function warp(h,x,y){const w=h[6]*x+h[7]*y+1;return[(h[0]*x+h[1]*y+h[2])/w,(h[3]*x+h[4]*y+h[5])/w]}
+
+function findMarkers(bin,W,H){
+ const m=Math.min(W,H),seen=new Uint8Array(W*H),st=new Int32Array(W*H),best=[null,null,null,null];
+ for(let s=0;s<W*H;s++){if(!bin[s]||seen[s])continue;
+  let sp=0,a=0,sx=0,sy=0,x0=W,x1=0,y0=H,y1=0;st[sp++]=s;seen[s]=1;
+  while(sp){const p=st[--sp],px=p%W,py=(p/W)|0;a++;sx+=px;sy+=py;
+   if(px<x0)x0=px;if(px>x1)x1=px;if(py<y0)y0=py;if(py>y1)y1=py;
+   const nb=[px>0?p-1:-1,px<W-1?p+1:-1,py>0?p-W:-1,py<H-1?p+W:-1];
+   for(const q of nb)if(q>=0&&bin[q]&&!seen[q]){seen[q]=1;st[sp++]=q}}
+  if(a<.0008*m*m||a>.006*m*m)continue;
+  const bw=x1-x0+1,bh=y1-y0+1,asp=bw/bh;
+  if(asp<.6||asp>1.7||a/(bw*bh)<.45)continue;
+  const cx=sx/a,cy=sy/a;
+  if(!((cx<.35*W||cx>.65*W)&&(cy<.3*H||cy>.7*H)))continue;
+  const q=(cy>H/2?2:0)+(cx>W/2?1:0);
+  if(!best[q]||a>best[q].a)best[q]={a,p:[cx,cy]}}
+ return best}
+
+function scan(im){
+ const k=Math.min(1,1400/Math.max(im.width,im.height)),W=Math.round(im.width*k),H=Math.round(im.height*k),cv=$('cv');
+ cv.width=W;cv.height=H;cv.hidden=false;
+ const x=cv.getContext('2d',{willReadFrequently:true});x.drawImage(im,0,0,W,H);
+ const d=x.getImageData(0,0,W,H).data,g=new Uint8Array(W*H),I=new Float64Array((W+1)*(H+1));
+ for(let i=0;i<W*H;i++)g[i]=.299*d[i*4]+.587*d[i*4+1]+.114*d[i*4+2];
+ for(let y=0;y<H;y++){let s=0;for(let c=0;c<W;c++){s+=g[y*W+c];I[(y+1)*(W+1)+c+1]=I[y*(W+1)+c+1]+s}}
+ const w=Math.round(Math.min(W,H)*.065),bin=new Uint8Array(W*H);
+ for(let y=0;y<H;y++){const y0=Math.max(0,y-w),y1=Math.min(H,y+w+1);
+  for(let c=0;c<W;c++){const x0=Math.max(0,c-w),x1=Math.min(W,c+w+1);
+   const sum=I[y1*(W+1)+x1]-I[y0*(W+1)+x1]-I[y1*(W+1)+x0]+I[y0*(W+1)+x0];
+   bin[y*W+c]=g[y*W+c]<sum/((x1-x0)*(y1-y0))*.78?1:0}}
+ const mk=findMarkers(bin,W,H);
+ if(mk.some(v=>!v)){msg('Hindi makita ang apat na itim na marker sa kanto. Kunan ulit nang kita ang buong papel, diretso, at maliwanag.');return}
+ const h=homog(MK,mk.map(v=>v.p)),P=pos(S.n),ans=[],hits=[];
+ const fill=(cx,cy,rm)=>{const[px,py]=warp(h,cx,cy),[qx,qy]=warp(h,cx+rm,cy),r=Math.hypot(qx-px,qy-py);let n=0,dk=0;for(let yy=Math.floor(py-r);yy<=py+r;yy++)for(let xx=Math.floor(px-r);xx<=px+r;xx++){if((xx-px)**2+(yy-py)**2>r*r||xx<0||yy<0||xx>=W||yy>=H)continue;n++;dk+=bin[yy*W+xx]}return n?dk/n:0};
+ // School ID / LRN is handwritten, so it must be entered manually in the editor.
+ P.forEach((p,i)=>{const marked=[];
+  p.xs.forEach((cx,j)=>{const[px,py]=warp(h,cx,p.y),[qx,qy]=warp(h,cx+2.8,p.y),r=Math.hypot(qx-px,qy-py)*.62;
+   let n=0,dk=0;for(let yy=Math.floor(py-r);yy<=py+r;yy++)for(let xx=Math.floor(px-r);xx<=px+r;xx++){
+    if((xx-px)**2+(yy-py)**2>r*r||xx<0||yy<0||xx>=W||yy>=H)continue;n++;dk+=bin[yy*W+xx]}
+   if(n&&dk/n>.45)marked.push(j)});
+  ans.push(marked.length===1?L[marked[0]]:marked.length?'*':'');
+  if(marked.length===1)hits.push([i,marked[0],warp(h,p.xs[marked[0]],p.y)])});
+ hits.forEach(([i,j,[px,py]])=>{const ok=S.key[i]&&L[j]===S.key[i];x.lineWidth=4;x.strokeStyle=!S.key[i]?'#888':ok?'#1B9E5A':'#E0343F';x.beginPath();x.arc(px,py,Math.hypot(...warp(h,0,0).map((v,q)=>v-warp(h,2.8,0)[q]))*1.1||10,0,7);x.stroke()});
+ S.cur={a:ans};if(S.idLen){$('sid').value=''}const found=ans.filter(Boolean).length;
+ msg(`Nabasa ang ${found} sa ${S.n} items${S.idLen?'. Isulat o ilagay nang mano-mano ang School ID / LRN sa field sa ibaba.':''} Suriin sa ibaba.`);drawEditor()}
+
+function drawEditor(){if(!S.cur)return;$('editor').hidden=false;
+ chips($('curChips'),S.cur.a,(v,i)=>S.key[i]?(v===S.key[i]?'ok':'bad'):'');
+ $('score').textContent=`${grade(S.cur.a)} / ${total()}`}
+$('curChips').onclick=e=>{const c=e.target.closest('.chip');if(!c)return;const i=+c.dataset.i;S.cur.a[i]=cyc(S.cur.a[i]);drawEditor()};
+
+function onFile(e){const f=e.target.files[0];if(!f)return;msg('Binabasa…');
+ const fr=new FileReader();fr.onload=()=>{const im=new Image();
+  im.onload=()=>{try{scan(im)}catch(err){msg('May error sa pag-scan. Subukan ulit.')}};
+  im.onerror=()=>msg('Hindi mabuksan ang larawan.');im.src=fr.result};
+ fr.readAsDataURL(f);e.target.value=''}
+$('f1').onchange=onFile;$('f2').onchange=onFile;
+let stream=null,camFail=false;
+function stopCam(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}$('camBox').hidden=true;$('camBtns').hidden=true}
+$('cam').onclick=async()=>{
+ if(camFail||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){$('f1').click();return}
+ try{
+  try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1440}},audio:false})}
+  catch(e){stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false})}
+  $('vid').srcObject=stream;await $('vid').play();$('camBox').hidden=false;$('camBtns').hidden=false;$('cv').hidden=true;
+  msg('Ilagay ang buong papel sa loob ng kahon, tapos pindutin ang Kunan.')}
+ catch(err){stopCam();camFail=true;msg('Hindi mabuksan ang live camera. Pindutin ulit ang Mag-picture para gamitin ang camera app ng phone.')}};
+$('snap').onclick=()=>{const v=$('vid');if(!v.videoWidth)return;const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);stopCam();msg('Binabasa…');setTimeout(()=>{try{scan(c)}catch(e){msg('May error sa pag-scan. Subukan ulit.')}},30)};
+$('camX').onclick=()=>{stopCam();msg('')};
+
+$('manual').onclick=()=>{S.cur={a:Array(S.n).fill('')};$('cv').hidden=true;msg('I-tap ang bawat item para ilagay ang sagot.');drawEditor()};
+$('saveRes').onclick=async()=>{const r={client_id:(window.crypto&&crypto.randomUUID?crypto.randomUUID():String(Date.now())+'-'+Math.random().toString(16).slice(2)),name:$('name').value.trim()||`Estudyante ${S.res.length+1}`,a:S.cur.a.slice(),key:S.key.slice(),s:grade(S.cur.a),t:total(),id:$('sid').value.trim(),ex:S.ex.type,ti:S.ex.title};
+ S.res.push(r);save();S.cur=null;$('editor').hidden=true;$('cv').hidden=true;$('name').value='';$('sid').value='';msg('Na-save sa device. Sini-sync sa cloud…');
+ try{const out=await Cloud.saveResult(r);if(out&&out.error)msg('Na-save sa device, pero hindi na-sync sa cloud: '+out.error);else msg('Na-save at na-sync na. Handa na para sa susunod na papel.')}catch(e){msg('Na-save sa device, pero pumalya ang cloud sync. Suriin ang internet/config at subukang i-sync muli.')}drawRes();};
+
+/* Item analysis */
+function sameExam(r){return (r.ex||'')===S.ex.type&&(r.ti||'')===S.ex.title}
+function pct(n,d){return d?100*n/d:0}
+function analysisData(){
+ const rs=S.res.filter(sameExam), key=(rs.find(r=>Array.isArray(r.key)&&r.key.length)?.key)||S.key;
+ const nItems=Math.max(key.length,...rs.map(r=>(r.a||[]).length),0);
+ const ordered=rs.slice().sort((a,b)=>(b.t?b.s/b.t:0)-(a.t?a.s/a.t:0));
+ const groupSize=ordered.length>=4?Math.max(1,Math.floor(ordered.length*.27)):0;
+ const upper=groupSize?ordered.slice(0,groupSize):[], lower=groupSize?ordered.slice(-groupSize):[];
+ const items=[];
+ for(let i=0;i<nItems;i++){
+  const k=key[i]||'';const valid=rs.filter(r=>r.a&&r.a[i]&&r.a[i]!=='*');
+  const correct=rs.filter(r=>k&&r.a&&r.a[i]===k).length;
+  const wrong=rs.length-correct;
+  const dist={A:0,B:0,C:0,D:0,E:0,Blank:0,Multiple:0};
+  rs.forEach(r=>{const a=r.a?r.a[i]:'';if(dist[a]!==undefined)dist[a]++;else if(a==='*')dist.Multiple++;else dist.Blank++});
+  let D=null;
+  if(groupSize&&k){const up=pct(upper.filter(r=>r.a&&r.a[i]===k).length,upper.length)/100;const lo=pct(lower.filter(r=>r.a&&r.a[i]===k).length,lower.length)/100;D=up-lo}
+  const p=k?pct(correct,rs.length):null;
+  let note=!k?'Walang answer key':rs.length<4?'Kulang ang sample':p>=85?'Madali':p<30?'Mahirap':'Katamtaman';
+  if(D!==null){if(D<0)note+='; repasuhin (negative D)';else if(D<.2)note+='; mababang discrimination';else if(D>=.4)note+='; magandang discrimination'}
+  items.push({i,k,correct,wrong,p,D,dist,n:rs.length,note,answered:valid.length});
+ }
+ return {rs,key,items,groupSize};
+}
+function drawAnalysis(){
+ const {rs,items,groupSize}=analysisData();
+ $('anTitle').textContent=S.ex.type+(S.ex.title?': '+S.ex.title:'');
+ if(!rs.length){$('anSummary').textContent='Wala pang resulta para sa exam na ito. Mag-save ng hindi bababa sa isang answer sheet.';$('anRows').innerHTML='<tr><td colspan="8" style="padding:10px">Wala pang resulta.</td></tr>';return}
+ const avg=rs.reduce((sum,r)=>sum+(r.t?r.s/r.t:0),0)/rs.length*100;
+ $('anSummary').textContent=`${rs.length} estudyante • Average score: ${avg.toFixed(1)}% • Upper/lower group: ${groupSize?groupSize+' bawat grupo':'hindi pa makukuwenta (kailangan ng hindi bababa sa 4 na resulta)'}`;
+ $('anRows').innerHTML=items.map(x=>`<tr style="border-top:1px solid var(--line)"><td style="padding:8px">${x.i+1}</td><td style="padding:8px">${esc(x.k||'—')}</td><td style="padding:8px">${x.correct} (${pct(x.correct,x.n).toFixed(1)}%)</td><td style="padding:8px">${x.wrong} (${pct(x.wrong,x.n).toFixed(1)}%)</td><td style="padding:8px">${x.p===null?'—':(x.p/100).toFixed(2)}</td><td style="padding:8px">${x.D===null?'—':x.D.toFixed(2)}</td><td style="padding:8px">${['A','B','C','D','E'].map(k=>k+':'+x.dist[k]).join(' ')}</td><td style="padding:8px">${esc(x.note)}</td></tr>`).join('');
+}
+$('anCsv').onclick=()=>{const {rs,items}=analysisData();const q=v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`;const rows=[['Exam type','Exam title','Students','Item','Key','Correct','Wrong/blank','Difficulty p','Discrimination D','A','B','C','D','E','Blank','Multiple shades','Interpretation'],...items.map(x=>[S.ex.type,S.ex.title,rs.length,x.i+1,x.k,x.correct,x.wrong,x.p===null?'':(x.p/100).toFixed(3),x.D===null?'':x.D.toFixed(3),x.dist.A,x.dist.B,x.dist.C,x.dist.D,x.dist.E,x.dist.Blank,x.dist.Multiple,x.note])];const t=$('anCsvText');t.value=rows.map(r=>r.map(q).join(',')).join('\n');t.hidden=false;t.select();try{navigator.clipboard.writeText(t.value).then(()=>{$('anSummary').textContent+=' • Nakopya ang CSV; i-paste sa Sheets/Excel.'},()=>{})}catch(e){}};
+
+/* Results */
+function drawRes(){$('exl').textContent=S.ex.type+(S.ex.title?': '+S.ex.title:'');$('list').innerHTML=S.res.length?S.res.map((r,i)=>`<div class="res"><span class="nm">${esc(r.name)}${r.id?'<br><span class="mut">'+esc(r.id)+'</span>':''}</span><span class="sc">${r.s}/${r.t}</span><span class="mut">${r.t?Math.round(r.s/r.t*100):0}%</span><button class="x" data-i="${i}" aria-label="Burahin">×</button></div>`).join(''):'<p class="mut">Wala pang resulta. I-scan ang unang papel.</p>';
+ $('avg').textContent=S.res.length?`Average: ${(S.res.reduce((a,r)=>a+(r.t?r.s/r.t:0),0)/S.res.length*100).toFixed(1)}% sa ${S.res.length} estudyante`:''}
+$('list').onclick=e=>{const b=e.target.closest('.x');if(!b)return;S.res.splice(+b.dataset.i,1);save();drawRes();drawAnalysis()};
+$('clr').onclick=()=>{if(S.res.length&&confirm('Burahin ang lahat ng resulta?')){S.res=[];save();drawRes();drawAnalysis()}};
+$('csvBtn').onclick=()=>{const q=v=>`"${String(v).replace(/"/g,'""')}"`;
+ const rows=[['Uri','Pamagat','School ID','Pangalan','Iskor','Kabuuan','Porsyento',...S.key.map((_,i)=>'Item '+(i+1))],...S.res.map(r=>[r.ex||'',r.ti||'',r.id||'',r.name,r.s,r.t,r.t?(r.s/r.t*100).toFixed(1):0,...r.a])];
+ const t=$('csv');t.value=rows.map(r=>r.map(q).join(',')).join('\n');t.hidden=false;t.select();
+ try{navigator.clipboard.writeText(t.value).then(()=>{$('avg').textContent='Nakopya na ang CSV. I-paste sa Sheets o Excel.'},()=>{})}catch(e){}};
+
+drawKey();
+// Pull cloud records when signed in; local data remains available offline.
+async function syncCloudResults(){if(!(window.Cloud&&Cloud.on&&Cloud.loadResults))return;try{const rows=await Cloud.loadResults();if(!Array.isArray(rows)||!rows.length)return;const clientIds=new Set(S.res.map(r=>r.client_id).filter(Boolean));const cloudIds=new Set(S.res.map(r=>r.cloud_id).filter(Boolean));let changed=false;rows.forEach(r=>{if((r.client_id&&clientIds.has(r.client_id))||(r.cloud_id&&cloudIds.has(r.cloud_id)))return;S.res.push(r);if(r.client_id)clientIds.add(r.client_id);if(r.cloud_id)cloudIds.add(r.cloud_id);changed=true});if(changed){save();drawRes();drawAnalysis()}}catch(e){/* offline or not signed in: local mode remains usable */}}
+if(window.Cloud&&Cloud.on){window.addEventListener('grader-auth-ready',syncCloudResults);syncCloudResults();}
+</script>
+</body>
+</html>
