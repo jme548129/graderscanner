@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grader Admin</title>
+<style>
+body{margin:0;font:16px/1.5 system-ui,sans-serif;background:#EDF4F3;color:#12302F}
+main{max-width:900px;margin:0 auto;padding:16px}
+h1{margin:8px 0}h2{margin:24px 0 8px;font-size:18px}
+.stats{display:flex;gap:10px;flex-wrap:wrap}.stat{background:#fff;border-radius:14px;padding:12px 16px;flex:1;min-width:120px}.stat b{display:block;font-size:26px;color:#0E6B6B}
+.wrap{overflow-x:auto;background:#fff;border-radius:14px}table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #D3E2E0;white-space:nowrap}th{background:#F6FAF9}
+a{color:#0E6B6B}
+</style></head><body><main>
+<h1>Grader Users</h1><p id="s">Loading…</p><div id="o"></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+<script src="config.js?v=20261022-en1"></script>
+<script>
+const $=id=>document.getElementById(id);
+const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dt=x=>x?new Date(x).toLocaleString('en-US'):'';
+(async()=>{
+ const C=window.GRADER_CONFIG;
+ if(!C||/YOUR_/.test(C.SUPABASE_URL)){$('s').textContent='Enter the Supabase URL and key in config.js first.';return}
+ const sb=supabase.createClient(C.SUPABASE_URL,C.SUPABASE_ANON_KEY);
+ try{
+  const got=await Promise.race([sb.auth.getSession(),new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),8000))]);
+  const session=got&&got.data&&got.data.session;
+  if(!session){$('s').innerHTML='Log in to <a href="index.html">Grader</a> first, then come back here.';return}
+  const {data:adm,error:adminError}=await sb.rpc('is_admin');
+  if(adminError)throw adminError;
+  if(!adm){$('s').textContent='This account is not an admin. See the README to become an admin.';return}
+  const [{data:P,error:pe},{data:R,error:re}]=await Promise.all([
+   sb.from('profiles').select('*').order('last_seen',{ascending:false}),
+   sb.from('results').select('*').order('created_at',{ascending:false}).limit(200)]);
+  if(pe||re)throw (pe||re);
+  const users=P||[],results=R||[];
+  const wk=Date.now()-7*864e5,active=users.filter(u=>new Date(u.last_seen)>wk).length,scans=users.reduce((a,u)=>a+(u.scans||0),0);
+  $('s').innerHTML=`<div class="stats"><div class="stat"><b>${users.length}</b>Total users</div><div class="stat"><b>${active}</b>Active (7 days)</div><div class="stat"><b>${scans}</b>Saved sheets</div></div>`;
+  $('o').innerHTML=`<h2>Users</h2><div class="wrap"><table><tr><th>Name</th><th>Email</th><th>School</th><th>Sheets</th><th>Joined</th><th>Last active</th></tr>${
+   users.map(u=>`<tr><td>${esc(u.full_name)}</td><td>${esc(u.email)}</td><td>${esc(u.school)}</td><td>${u.scans||0}</td><td>${dt(u.created_at)}</td><td>${dt(u.last_seen)}</td></tr>`).join('')}</table></div>
+  <h2>Latest results</h2><div class="wrap"><table><tr><th>Date</th><th>Teacher</th><th>Exam</th><th>Student</th><th>ID</th><th>Score</th></tr>${
+   results.map(r=>{const u=users.find(x=>x.id===r.user_id)||{};return `<tr><td>${dt(r.created_at)}</td><td>${esc(u.full_name||u.email)}</td><td>${esc(r.exam_type)} ${esc(r.exam_title)}</td><td>${esc(r.student_name)}</td><td>${esc(r.student_id)}</td><td>${r.score}/${r.total}</td></tr>`}).join('')}</table></div>`;
+ }catch(error){
+  $('s').innerHTML='Could not load admin data. Log in to <a href="index.html">Grader</a> and refresh the page. '+(error&&error.message?esc(error.message):'');
+ }
+})();
+</script></body></html>
